@@ -1,44 +1,67 @@
+//Autofocus without scroll
+document.querySelector("#userinput").focus({
+  preventScroll: true
+});
 
-<!DOCTYPE html>
-<html>
-  <head>
-    <link rel="icon" type="image.png" href="image.png" />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="stylesheet" href="/js/tab.css" />
-    <title>Tab Cloak | 3kh0</title>
-  </head>
-  <body>
-    <div class="console-container">
-      <div class="console">
-        <h1>Tab Cloaker</h1>
-        <div class="consolebody">
-          <p>Enter a new tab title or a image URL below. Whatever you set will be used all over the site.</p>
-          <p class="console-input">> <input id="userinput" type="url" pattern="https://.*" placeholder="Enter a title or image URL" autocomplete="on" autofocus /></p>
-          <p>Output: <span id="console-output"></span></p>
-        </div>
-      </div>
-      <div class="button-wrapper">
-        <button onclick="changeTabTitle();" class="console-button">Set Title</button>
-        <button onclick="changeTabIcon();" class="console-button">Set Icon</button>
-        <button onclick="resetTabSettings();" class="console-button">Reset</button>
-      </div>
-      <div class="examples">
-        <h2>Presets:</h2>
-        <p><b>Google Search: </b><button onclick="applyUrl('https://storage.googleapis.com/operating-anagram-8280/favicon-32x32.png', 'Math pratice - Google Search');">Apply</button></p>
-        <p><b>Google Classroom: </b><button onclick="applyUrl('https://ssl.gstatic.com/classroom/favicon.png', 'Classes');">Apply</button></p>
-        <p><b>Google Docs: </b><button onclick="applyUrl('https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico', 'Class notes - Google Docs');">Apply</button></p>
-        <p><b>Google Drive: </b><button onclick="applyUrl('https://ssl.gstatic.com/images/branding/product/2x/hh_drive_36dp.png', 'My Drive - Google Drive');">Apply</button></p>
-        <p><b>Canvas: </b><button onclick="applyUrl('https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico' , 'Dashboard');">Apply</button></p>
-        <p><b>Schoology: </b><button onclick="applyUrl('https://asset-cdn.schoology.com/sites/all/themes/schoology_theme/favicon.ico', 'Home | Schoology');">Apply</button></p>
-        <p>
-          <b>my NG connect: </b>
-          <button onclick="applyUrl('https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.myngconnect.com/login/chooseMainUI.spr&size=16', 'my NG connect');">Apply</button>
-        </p>
-      </div>
-    </div>
-    <script src="/js/main.js"></script>
-    <script src="/js/tab.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  </body>
-</html>
+const image_preview = document.getElementById("image-preview");
+const console_output = document.getElementById("console-output");
+
+//Change tabTitle
+const changeTabTitle = () => {
+  const newtitle = document.getElementById("userinput");
+  if (newtitle.value == ""){ //check if the input is blank when they submit
+      window.localStorage.removeItem("title");
+      window.document.title = "3kh0.github.io"
+      document.getElementById("console-output").style.color = "red"; //error = red
+      console_output.innerText = "No title entered. Default applied" //return output successful
+  } else {
+      window.localStorage.setItem("title", newtitle.value);
+      window.document.title = newtitle.value; //Set window's title to userinput
+      document.getElementById("console-output").style.color = "green"; //reset output's color to green
+      console_output.innerText = "Title change successful" //return output successful
+  }
+  newtitle.value = ""; //clear input
+};
+
+//Change the tabIcon
+const changeTabIcon = () => {
+  const newfavicon = document.getElementById("userinput");
+  if (validURL(newfavicon.value)){
+      document.querySelector("link[rel*='icon']").href = newfavicon.value;
+      window.localStorage.setItem("icon", newfavicon.value);
+      document.getElementById("console-output").style.color = "green";
+      console_output.innerText = "Icon change successful"
+  } else {
+      document.getElementById("console-output").style.color = "red";
+      console_output.innerText = "Icon change failed. Make sure you are using a valid URL"
+  }
+  newfavicon.value = ""; //clear input
+};
+
+//URL Validation Regex
+const validURL = (str) => {
+  var expression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+  var regex = new RegExp(expression);
+  return !!regex.test(str);
+}
+
+//Clears Tab Icon and Title
+const resetTabSettings = () => {
+  let items = ["icon", "title"];
+  items.forEach(item =>
+  window.localStorage.removeItem(item));
+  document.getElementById("console-output").style.color = "black";
+  console_output.innerText = "Resetting..."
+  window.location.reload();
+};
+
+// Handle Apply buttons
+
+function applyUrl(url, title){
+document.getElementById("userinput").value = url;
+changeTabIcon();
+document.getElementById("userinput").value = title;
+changeTabTitle();
+document.getElementById("console-output").style.color = "green";
+console_output.innerText = "Preset applied successfully!"
+}
